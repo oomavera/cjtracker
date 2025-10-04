@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { sendTelegramMessage } from '../../../lib/telegram';
+import { sendTelegramMessage } from '../../../../lib/telegram.js';
 
 export async function POST(request) {
   try {
