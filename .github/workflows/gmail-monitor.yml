@@ -1,0 +1,15 @@
+name: Gmail Lead Monitor
+
+on:
+  schedule:
+    # Run every minute
+    - cron: '* * * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  check-gmail:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for Lead Emails
+        run: |
+          curl -X GET "https://your-domain.vercel.app/api/gmail-polling"

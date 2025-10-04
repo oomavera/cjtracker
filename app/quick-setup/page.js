@@ -49,7 +49,7 @@ export default function QuickSetup() {
     
     // Start checking immediately and then every 10 seconds
     checkNow();
-    setInterval(checkNow, 10000);
+    setInterval(checkNow, 5000);
   };
 
   const checkNow = async () => {

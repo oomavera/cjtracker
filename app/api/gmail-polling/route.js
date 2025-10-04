@@ -40,30 +40,69 @@ async function checkForNewLeadEmails() {
   
   let accessToken = tokens.accessToken;
   
+  // Check if token might be expired (tokens are valid for 1 hour)
+  const tokenAge = Date.now() - (tokens.tokenTime || 0);
+  const oneHour = 60 * 60 * 1000;
+  
+  if (tokenAge > oneHour * 0.9 && tokens.refreshToken) { // Refresh at 90% of expiry
+    console.log('Token approaching expiry, refreshing...');
+    const newToken = await refreshAccessToken(tokens.refreshToken);
+    if (newToken) {
+      accessToken = newToken;
+    }
+  }
+  
   try {
     // Check ALL unread emails including spam from the last 5 minutes
     const query = `is:unread newer_than:5m in:anywhere`;
     
-    // Get recent unread emails
-    const response = await fetch(
-      `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(query)}`,
-      {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
+    // Get recent unread emails with retry logic
+    let response;
+    let retryCount = 0;
+    const maxRetries = 3;
+    
+    while (retryCount < maxRetries) {
+      try {
+        response = await fetch(
+          `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(query)}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+            timeout: 10000 // 10 second timeout
+          }
+        );
+        break; // Success, exit retry loop
+      } catch (fetchError) {
+        retryCount++;
+        if (retryCount >= maxRetries) {
+          throw new Error(`Gmail API fetch failed after ${maxRetries} retries: ${fetchError.message}`);
+        }
+        console.log(`Gmail API fetch attempt ${retryCount} failed, retrying...`);
+        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)); // Exponential backoff
       }
-    );
+    }
     
     if (!response.ok) {
       // Try to refresh token if unauthorized
       if (response.status === 401 && tokens.refreshToken) {
+        console.log('Access token expired, attempting refresh...');
         const newToken = await refreshAccessToken(tokens.refreshToken);
         if (newToken) {
           return await checkForNewLeadEmails(); // Retry with new token
+        } else {
+          throw new Error('Failed to refresh access token');
         }
       }
-      throw new Error(`Gmail API error: ${response.status}`);
+      
+      // Handle rate limiting
+      if (response.status === 429) {
+        console.log('Gmail API rate limited, will retry next cycle');
+        return { success: false, error: 'Rate limited', retryAfter: 60 };
+      }
+      
+      throw new Error(`Gmail API error: ${response.status} ${response.statusText}`);
     }
     
     const data = await response.json();
@@ -117,17 +156,8 @@ async function checkForNewLeadEmails() {
           // Clean up body preview (remove HTML tags and limit length)
           bodyPreview = bodyPreview.replace(/<[^>]*>/g, '').substring(0, 200);
           
-          // Send Telegram notification directly
-          const telegramMessage = `🎯 NEW DIRECT LEAD EMAIL!
-
-📧 From: ${from}
-📋 Subject: ${subject}
-📅 Date: ${date}
-💬 Preview: ${bodyPreview}...
-🆔 Message ID: ${message.id}
-⏰ Time: ${new Date().toLocaleString()}
-
-🔥 CALL NOW while they're hot!`;
+          // Send simple Telegram notification
+          const telegramMessage = `New Thumbtack Lead - ${new Date().toLocaleString()}`;
           
           try {
             const telegramResponse = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
@@ -143,9 +173,10 @@ async function checkForNewLeadEmails() {
             if (sent) {
               // Mark this email as notified
               markEmailAsNotified(message.id);
-              console.log(`📧 NEW lead email notification sent: ${subject} (${message.id})`);
+              console.log(`📧 Lead email found and notification sent: ${subject}`);
             } else {
-              console.log(`📧 Failed to send notification for: ${subject}`);
+              const telegramError = await telegramResponse.text();
+              console.log(`📧 Lead email found and notification failed: ${subject}. Error: ${telegramError}`);
             }
           } catch (error) {
             console.error('Failed to send Telegram notification:', error);
@@ -165,7 +196,29 @@ async function checkForNewLeadEmails() {
     
   } catch (error) {
     console.error('Error checking emails:', error);
-    return { success: false, error: error.message };
+    
+    // Send error notification to Telegram for critical failures
+    if (error.message.includes('refresh') || error.message.includes('401')) {
+      try {
+        await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: process.env.TELEGRAM_CHAT_ID,
+            text: `🚨 Gmail Monitor Error: ${error.message} - ${new Date().toLocaleString()}`
+          }),
+        });
+      } catch (telegramError) {
+        console.error('Failed to send error notification:', telegramError);
+      }
+    }
+    
+    return { 
+      success: false, 
+      error: error.message,
+      timestamp: new Date().toISOString(),
+      recoverable: error.message.includes('Rate limited') || error.message.includes('timeout')
+    };
   }
 }
 
