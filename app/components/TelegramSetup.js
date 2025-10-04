@@ -14,6 +14,9 @@ export default function TelegramSetup() {
 
   // Check for OAuth success on component mount
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
     const urlParams = new URLSearchParams(window.location.search);
     const success = urlParams.get('success');
     const token = urlParams.get('access_token');
@@ -294,7 +297,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000`}
           Your webhook endpoint for Gmail notifications:
         </p>
         <code className="bg-gray-800 text-green-400 p-3 rounded text-sm block">
-          {typeof window !== 'undefined' ? window.location.origin : 'https://yourdomain.com'}/api/webhook/gmail
+          https://yourdomain.com/api/webhook/gmail
         </code>
       </div>
 

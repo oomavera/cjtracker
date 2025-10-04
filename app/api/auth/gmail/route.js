@@ -3,10 +3,10 @@ import { NextResponse } from 'next/server';
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const redirectTo = searchParams.get('redirect_to') || '/setup';
+    const redirectTo = searchParams.get('redirect_to') || '/quick-setup';
 
-    // Generate state parameter for CSRF protection
-    const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    // Use redirect URL as state parameter
+    const state = redirectTo;
     
     // Store state in session/cookie for validation (simplified for demo)
     const response = NextResponse.redirect(
@@ -14,7 +14,7 @@ export async function GET(request) {
       `client_id=${process.env.GMAIL_CLIENT_ID}&` +
       `redirect_uri=${encodeURIComponent(process.env.GMAIL_REDIRECT_URI)}&` +
       `response_type=code&` +
-      `scope=${encodeURIComponent('https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.push')}&` +
+      `scope=${encodeURIComponent('https://www.googleapis.com/auth/gmail.readonly')}&` +
       `access_type=offline&` +
       `prompt=consent&` +
       `state=${state}`

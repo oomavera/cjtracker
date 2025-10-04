@@ -747,6 +747,18 @@ export default function Page() {
 
   return (
     <main className="p-6 min-h-screen bg-black text-white">
+      {/* Gmail Lead Notifications Setup */}
+      <div className="mb-8 p-4 border border-blue-500 rounded-lg bg-blue-950/20">
+        <h2 className="text-lg font-semibold text-blue-300 mb-2">📧 Gmail Lead Notifications</h2>
+        <p className="text-sm text-blue-200 mb-3">Get instant Telegram notifications for "New Direct Lead" emails</p>
+        <a 
+          href="/quick-setup" 
+          className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm"
+        >
+          🔗 Setup Gmail → Telegram Automation
+        </a>
+      </div>
+
       {/* Closed timeline (moved to top) */}
       <section className="space-y-2">
         <h2 className="text-lg font-semibold">Closed</h2>

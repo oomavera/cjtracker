@@ -8,39 +8,29 @@ export async function POST(request) {
     // Log the incoming webhook for debugging
     console.log('Gmail webhook received:', JSON.stringify(body, null, 2));
     
-    // Extract email information from Gmail webhook
-    const { 
-      message,
-      subscription,
-      historyId,
-      emailAddress,
-      threadId,
-      messageId
-    } = body;
-    
     // Handle Gmail push notification
-    if (message && message.data) {
+    if (body.message && body.message.data) {
       // Decode the base64 message data
-      const messageData = Buffer.from(message.data, 'base64').toString('utf-8');
+      const messageData = Buffer.from(body.message.data, 'base64').toString('utf-8');
       const parsedData = JSON.parse(messageData);
       
-      const { 
-        emailAddress: senderEmail,
-        historyId: emailHistoryId,
-        threadId: emailThreadId
-      } = parsedData;
+      console.log('Parsed Gmail notification:', parsedData);
       
-      // Fetch the actual email content using Gmail API
-      const emailContent = await fetchEmailContent(emailThreadId);
+      const { emailAddress, historyId } = parsedData;
+      
+      // Get an access token (we'll store this from OAuth)
+      const accessToken = await getStoredAccessToken();
+      
+      if (!accessToken) {
+        console.error('No access token available');
+        return NextResponse.json({ success: false, error: 'No access token' });
+      }
+      
+      // Fetch recent messages using the historyId
+      const emailContent = await fetchRecentEmails(accessToken, historyId);
       
       if (emailContent) {
-        await handleNewEmail({
-          senderEmail,
-          subject: emailContent.subject,
-          body: emailContent.body,
-          threadId: emailThreadId,
-          messageId: emailContent.messageId
-        });
+        await handleNewEmail(emailContent);
       }
     }
     
@@ -55,18 +45,22 @@ export async function POST(request) {
   }
 }
 
-async function fetchEmailContent(threadId) {
+// Simple in-memory storage for access token (in production, use a database)
+let storedAccessToken = null;
+
+async function getStoredAccessToken() {
+  return storedAccessToken;
+}
+
+export async function storeAccessToken(token) {
+  storedAccessToken = token;
+}
+
+async function fetchRecentEmails(accessToken, historyId) {
   try {
-    const accessToken = process.env.GMAIL_ACCESS_TOKEN;
-    
-    if (!accessToken) {
-      console.error('Gmail access token not configured');
-      return null;
-    }
-    
-    // Fetch the email thread from Gmail API
+    // Get recent messages
     const response = await fetch(
-      `https://gmail.googleapis.com/gmail/v1/users/me/threads/${threadId}?format=full`,
+      `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=is:unread newer_than:1h`,
       {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -76,43 +70,66 @@ async function fetchEmailContent(threadId) {
     );
     
     if (!response.ok) {
-      console.error('Failed to fetch email content:', response.statusText);
+      console.error('Failed to fetch emails:', response.statusText);
       return null;
     }
     
-    const threadData = await response.json();
-    const message = threadData.messages[threadData.messages.length - 1];
+    const data = await response.json();
+    const messages = data.messages || [];
     
-    // Extract headers
-    const headers = message.payload.headers;
-    const subject = headers.find(h => h.name === 'Subject')?.value || 'No Subject';
-    const from = headers.find(h => h.name === 'From')?.value || 'Unknown Sender';
-    const date = headers.find(h => h.name === 'Date')?.value || 'Unknown Date';
-    
-    // Extract body
-    let body = '';
-    if (message.payload.body && message.payload.body.data) {
-      body = Buffer.from(message.payload.body.data, 'base64').toString('utf-8');
-    } else if (message.payload.parts) {
-      // Look for text/plain or text/html parts
-      const textPart = message.payload.parts.find(part => 
-        part.mimeType === 'text/plain' || part.mimeType === 'text/html'
+    // Check the most recent message
+    if (messages.length > 0) {
+      const messageId = messages[0].id;
+      
+      // Fetch the message details
+      const messageResponse = await fetch(
+        `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}?format=full`,
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        }
       );
-      if (textPart && textPart.body && textPart.body.data) {
-        body = Buffer.from(textPart.body.data, 'base64').toString('utf-8');
+      
+      if (messageResponse.ok) {
+        const messageData = await messageResponse.json();
+        const headers = messageData.payload.headers;
+        
+        const subject = headers.find(h => h.name === 'Subject')?.value || 'No Subject';
+        const from = headers.find(h => h.name === 'From')?.value || 'Unknown Sender';
+        const date = headers.find(h => h.name === 'Date')?.value || 'Unknown Date';
+        
+        // Extract body
+        let body = '';
+        if (messageData.payload.body && messageData.payload.body.data) {
+          body = Buffer.from(messageData.payload.body.data, 'base64').toString('utf-8');
+        } else if (messageData.payload.parts) {
+          const textPart = messageData.payload.parts.find(part => 
+            part.mimeType === 'text/plain' || part.mimeType === 'text/html'
+          );
+          if (textPart && textPart.body && textPart.body.data) {
+            body = Buffer.from(textPart.body.data, 'base64').toString('utf-8');
+          }
+        }
+        
+        // Clean up body (remove HTML tags)
+        body = body.replace(/<[^>]*>/g, '').substring(0, 200);
+        
+        return {
+          subject,
+          from,
+          date,
+          body,
+          messageId
+        };
       }
     }
     
-    return {
-      subject,
-      from,
-      date,
-      body: body.substring(0, 500), // Limit body length
-      messageId: message.id
-    };
+    return null;
     
   } catch (error) {
-    console.error('Error fetching email content:', error);
+    console.error('Error fetching recent emails:', error);
     return null;
   }
 }
@@ -120,18 +137,19 @@ async function fetchEmailContent(threadId) {
 async function handleNewEmail(data) {
   const { subject, from, body, date, messageId } = data;
   
-  // Check if subject contains "New direct lead!"
-  if (subject.toLowerCase().includes('new direct lead!')) {
-    const message = `🎯 NEW DIRECT LEAD EMAIL!\\n\\n` +
-      `📧 From: ${from}\\n` +
-      `📋 Subject: ${subject}\\n` +
-      `📅 Date: ${date}\\n` +
-      `💬 Preview: ${body.substring(0, 200)}...\\n` +
-      `🆔 Message ID: ${messageId}\\n` +
-      `⏰ Time: ${new Date().toLocaleString()}`;
+  // Check if subject contains "New Direct Lead" (more flexible matching)
+  if (subject.toLowerCase().includes('new direct lead')) {
+    const message = `🎯 NEW DIRECT LEAD EMAIL!
+
+📧 From: ${from}
+📋 Subject: ${subject}
+📅 Date: ${date}
+💬 Preview: ${body}...
+🆔 Message ID: ${messageId}
+⏰ Time: ${new Date().toLocaleString()}`;
     
-    await sendTelegramMessage(message);
-    console.log('✅ Telegram notification sent for new direct lead email');
+    const sent = await sendTelegramMessage(message);
+    console.log(`✅ Telegram notification ${sent ? 'sent' : 'failed'} for new direct lead email`);
   } else {
     console.log('📧 Email received but subject does not match criteria:', subject);
   }

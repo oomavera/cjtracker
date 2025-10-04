@@ -47,9 +47,13 @@ export async function GET(request) {
     const tokenData = await tokenResponse.json();
     const { access_token, refresh_token, expires_in } = tokenData;
 
+    // Get the redirect_to parameter from the original auth request
+    const { searchParams: originalParams } = new URL(request.url);
+    const redirectTo = originalParams.get('state') || '/quick-setup';
+    
     // Store tokens securely (in production, use a proper database)
     // For now, we'll redirect with success and store in localStorage
-    const redirectUrl = new URL('/setup', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
+    const redirectUrl = new URL(redirectTo, process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
     redirectUrl.searchParams.set('gmail_success', 'true');
     redirectUrl.searchParams.set('gmail_access_token', access_token);
     redirectUrl.searchParams.set('gmail_refresh_token', refresh_token);
