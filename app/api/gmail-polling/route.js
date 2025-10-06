@@ -5,16 +5,16 @@ import { storeTokens, getStoredTokens, isEmailAlreadyNotified, markEmailAsNotifi
 export async function POST(request) {
   try {
     const { access_token, refresh_token } = await request.json();
-    
+
     if (access_token) {
-      storeTokens(access_token, refresh_token || null);
+      await storeTokens(access_token, refresh_token || null);
     }
-    
+
     // Check for new emails immediately
     const result = await checkForNewLeadEmails();
-    
+
     return NextResponse.json(result);
-    
+
   } catch (error) {
     console.error('Gmail polling error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -33,11 +33,11 @@ export async function GET() {
 }
 
 async function checkForNewLeadEmails() {
-  const tokens = getStoredTokens();
+  const tokens = await getStoredTokens();
   if (!tokens || !tokens.accessToken) {
     return { success: false, error: 'No access token available' };
   }
-  
+
   let accessToken = tokens.accessToken;
   
   // Check if token might be expired (tokens are valid for 1 hour)
@@ -133,9 +133,9 @@ async function checkForNewLeadEmails() {
         // Check if this is a "New Direct Lead" email
         if (subject.toLowerCase().includes('new direct lead')) {
           leadEmailsFound++;
-          
+
           // Check if we've already notified about this email
-          if (isEmailAlreadyNotified(message.id)) {
+          if (await isEmailAlreadyNotified(message.id)) {
             console.log(`📧 Already notified about email: ${subject} (${message.id})`);
             continue; // Skip this email
           }
@@ -172,7 +172,7 @@ async function checkForNewLeadEmails() {
             const sent = telegramResponse.ok;
             if (sent) {
               // Mark this email as notified
-              markEmailAsNotified(message.id);
+              await markEmailAsNotified(message.id);
               console.log(`📧 Lead email found and notification sent: ${subject}`);
             } else {
               const telegramError = await telegramResponse.text();
@@ -244,7 +244,7 @@ async function refreshAccessToken(refreshToken) {
     if (response.ok) {
       const data = await response.json();
       // Store the new access token
-      storeTokens(data.access_token, refreshToken);
+      await storeTokens(data.access_token, refreshToken);
       console.log('Access token refreshed successfully');
       return data.access_token;
     }
