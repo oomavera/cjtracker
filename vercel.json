@@ -4,5 +4,10 @@
       "path": "/api/gmail-polling",
       "schedule": "* * * * *"
     }
-  ]
+  ],
+  "functions": {
+    "app/api/gmail-polling/route.js": {
+      "maxDuration": 60
+    }
+  }
 }
