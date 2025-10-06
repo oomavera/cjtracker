@@ -52,7 +52,8 @@ async function getStoredAccessToken() {
   return storedAccessToken;
 }
 
-export async function storeAccessToken(token) {
+// Not exported - Next.js route handlers can only export GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS
+async function storeAccessToken(token) {
   storedAccessToken = token;
 }
 
