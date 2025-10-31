@@ -33,8 +33,11 @@ export async function GET() {
 }
 
 async function checkForNewLeadEmails() {
+  console.log('📧 Checking for new lead emails...');
   const tokens = await getStoredTokens();
+  console.log('📧 Retrieved tokens:', tokens ? 'Found' : 'Not found');
   if (!tokens || !tokens.accessToken) {
+    console.log('❌ No access token available');
     return { success: false, error: 'No access token available' };
   }
 

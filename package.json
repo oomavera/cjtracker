@@ -16,6 +16,7 @@
     "@react-three/fiber": "^8.15.0",
     "@supabase/supabase-js": "^2.46.1",
     "axios": "^1.7.0",
+    "dotenv": "^17.2.3",
     "framer-motion": "^11.2.10",
     "ml-matrix": "^6.12.1",
     "next": "15.3.5",

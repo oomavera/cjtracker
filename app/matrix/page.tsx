@@ -19,30 +19,30 @@ export default function MatrixPage() {
   const [addOven, setAddOven] = useState(false);
 
   // Ridge regression model (K-fold CV, trained on Ref1.csv)
-  // Model: R² = 0.9598, MAE = 0.229 hours, RMSE = 0.433 hours, Alpha = 0.494
+  // Model: R² = 0.9233, MAE = 0.312 hours, RMSE = 0.504 hours, Alpha = 1.151
   const ridgeModel = {
     coefficients: {
-      intercept: 2.970799,
-      sqft: 0.001006,
-      bedrooms: 0.570017,
-      bathrooms: 0.198949,
-      deep_clean: 1.123613,
-      fridge: 0.422382,
-      oven: 0.664175,
-      clutter_high: 0.411362,
-      clutter_low: -0.447349,
-      clutter_medium: 0.035987
+      intercept: 3.052929,
+      sqft: 0.155445,
+      bedrooms: 0.335428,
+      bathrooms: 0.160120,
+      deep_clean: 1.105194,
+      fridge: 0.535092,
+      oven: 0.439813,
+      clutter_high: 0.372249,
+      clutter_low: -0.371822,
+      clutter_medium: -0.000428
     },
     standardization: {
       means: {
-        sqft: 2429,
-        bedrooms: 3.647,
-        bathrooms: 2.647
+        sqft: 2395.3,
+        bedrooms: 3.65,
+        bathrooms: 2.55
       },
       stds: {
-        sqft: 1761.318,
-        bedrooms: 1.169,
-        bathrooms: 1.057
+        sqft: 1621.346,
+        bedrooms: 1.089,
+        bathrooms: 0.999
       }
     },
     categories: {
@@ -58,7 +58,7 @@ export default function MatrixPage() {
     { name: 'Rida', beds: 6, baths: 5, sqft: 6648, type: 'deep', fridge: false, oven: false, clutter: 'medium', hours: 6.2 },
     { name: 'Aj', beds: 2, baths: 2, sqft: 1002, type: 'standard', fridge: false, oven: false, clutter: 'medium', hours: 2 },
     { name: 'Brianna', beds: 3, baths: 2, sqft: 1167, type: 'deep', fridge: true, oven: true, clutter: 'high', hours: 5 },
-    { name: 'Anthony', beds: 2, baths: 2, sqft: 1188, type: 'standard', fridge: false, oven: false, clutter: 'low', hours: 1.75 },
+    { name: 'Anthony', beds: 2, baths: 2, sqft: 1188, type: 'standard', fridge: false, oven: false, clutter: 'low', hours: 2.3 },
     { name: 'Trey', beds: 5, baths: 4, sqft: 4214, type: 'standard', fridge: false, oven: false, clutter: 'low', hours: 3.5 },
     { name: 'Michael', beds: 4, baths: 3, sqft: 2551, type: 'standard', fridge: false, oven: false, clutter: 'low', hours: 3 },
     { name: 'Hany', beds: 4, baths: 2, sqft: 2042, type: 'deep', fridge: true, oven: false, clutter: 'low', hours: 4 },
@@ -68,7 +68,10 @@ export default function MatrixPage() {
     { name: 'Patricia', beds: 3, baths: 2, sqft: 1957, type: 'standard', fridge: false, oven: false, clutter: 'medium', hours: 2.5 },
     { name: 'Chitra', beds: 4, baths: 2, sqft: 1777, type: 'standard', fridge: false, oven: false, clutter: 'low', hours: 2.5 },
     { name: 'Celeste', beds: 3, baths: 2, sqft: 1260, type: 'deep', fridge: true, oven: true, clutter: 'medium', hours: 5.2 },
-    { name: 'Kathy', beds: 3, baths: 3, sqft: 1687, type: 'deep', fridge: false, oven: false, clutter: 'medium', hours: 3.75 },
+    { name: 'Kathy', beds: 3, baths: 3, sqft: 1687, type: 'deep', fridge: false, oven: false, clutter: 'medium', hours: 4.1 },
+    { name: 'Mike', beds: 3, baths: 2, sqft: 1875, type: 'deep', fridge: true, oven: false, clutter: 'low', hours: 4.4 },
+    { name: 'Jack', beds: 4, baths: 2, sqft: 2271, type: 'standard', fridge: false, oven: false, clutter: 'low', hours: 2.5 },
+    { name: 'Craig', beds: 4, baths: 2, sqft: 2467, type: 'standard', fridge: false, oven: false, clutter: 'low', hours: 3.2 },
   ];
 
   // Ridge regression model: Predicts labor hours from property attributes
@@ -148,7 +151,7 @@ export default function MatrixPage() {
       clutterLevel
     );
 
-    const hourlyRate = 80; // This is the total service rate, not per cleaner
+    const hourlyRate = 86; // This is the total service rate, not per cleaner
 
     // Model predicts actual clock hours (time on site with 2 cleaners)
     // No need to divide - the training data is already in clock hours
@@ -156,7 +159,7 @@ export default function MatrixPage() {
     setDeepCleanHours(deepHours);
 
     // Price is based on clock hours × hourly rate
-    // If cleaners are there 4 hours at $80/hr = $320
+    // If cleaners are there 2 hours at $86/hr = $172
     setStandardCleanPrice(standardHours * hourlyRate);
     setDeepCleanPrice(deepHours * hourlyRate);
   };
@@ -316,7 +319,7 @@ export default function MatrixPage() {
 
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mt-4">
                 <p className="text-xs text-gray-600 text-center">
-                  $80/hour service rate (2 cleaners) | Times shown are clock hours (actual time on site) | Deep cleans include ceiling fans
+                  $86/hour service rate (2 cleaners) | Times shown are clock hours (actual time on site) | Deep cleans include ceiling fans
                 </p>
               </div>
             </div>
@@ -325,7 +328,7 @@ export default function MatrixPage() {
 
         <div className="mt-6 bg-white rounded-lg shadow-md p-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-3">
-            Reference Data from Ref1.csv (17 properties)
+            Reference Data from Ref1.csv (20 properties)
           </h3>
           <div className="text-xs text-gray-600 space-y-1 max-h-64 overflow-y-auto">
             {referenceData.map((data, idx) => (
@@ -341,7 +344,7 @@ export default function MatrixPage() {
           </div>
           <div className="mt-4 pt-4 border-t border-gray-200">
             <p className="text-xs text-gray-500">
-              <strong>Algorithm:</strong> Ridge regression (L2-regularized) with K-fold cross-validation for optimal regularization strength (α = 0.494). Trained on 17 actual cleaning jobs with proper feature standardization. Predicts labor-hours from square footage, bedrooms, bathrooms, deep-clean flag, clutter level, and fridge/oven tasks. Model performance: R² = 0.9598 (96% variance explained), MAE = 0.229 hours, RMSE = 0.433 hours. This approach uses production-rate thinking aligned with custodial workloading frameworks and industry time-study methods.
+              <strong>Algorithm:</strong> Ridge regression (L2-regularized) with K-fold cross-validation for optimal regularization strength (α = 1.151). Trained on 20 actual cleaning jobs with proper feature standardization. Predicts labor-hours from square footage, bedrooms, bathrooms, deep-clean flag, clutter level, and fridge/oven tasks. Model performance: R² = 0.9233 (92% variance explained), MAE = 0.312 hours, RMSE = 0.504 hours. This approach uses production-rate thinking aligned with custodial workloading frameworks and industry time-study methods.
             </p>
           </div>
         </div>

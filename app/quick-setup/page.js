@@ -14,8 +14,11 @@ export default function QuickSetup() {
     const gmailSuccess = urlParams.get('gmail_success');
     const accessToken = urlParams.get('gmail_access_token');
     const refreshToken = urlParams.get('gmail_refresh_token');
-    
+
+    console.log('Quick setup loaded. Gmail success:', gmailSuccess, 'Has token:', !!accessToken);
+
     if (gmailSuccess === 'true' && accessToken) {
+      console.log('Starting monitoring setup...');
       setTokens({ accessToken, refreshToken });
       setStep(2);
       startMonitoring(accessToken, refreshToken);
@@ -55,11 +58,21 @@ export default function QuickSetup() {
   const checkNow = async () => {
     try {
       const response = await fetch('/api/gmail-polling');
+      console.log('Response status:', response.status);
+
+      if (!response.ok) {
+        const text = await response.text();
+        console.error('API error response:', text);
+        setLastCheck({ success: false, error: `API returned ${response.status}` });
+        return;
+      }
+
       const result = await response.json();
       setLastCheck(result);
       console.log('Check result:', result);
     } catch (error) {
       console.error('Check failed:', error);
+      setLastCheck({ success: false, error: error.message });
     }
   };
 

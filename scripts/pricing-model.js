@@ -355,7 +355,7 @@ fs.writeFileSync("./scripts/ridge_model.json", JSON.stringify(modelExport, null,
 console.log("Model saved to ./scripts/ridge_model.json");
 // Build the full pricing matrix
 const n = buildMatrix(model, data, {
-    hourlyRate: 80,
+    hourlyRate: 86,
     minCharge: 120,
     travelFee: 0,
     sqftStart: 800,
