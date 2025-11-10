@@ -10,6 +10,10 @@ export default function MatrixPage() {
   const [standardCleanPrice, setStandardCleanPrice] = useState<number | null>(null);
   const [standardHours, setStandardHours] = useState<number | null>(null);
   const [deepCleanHours, setDeepCleanHours] = useState<number | null>(null);
+  const [soloStandardHours, setSoloStandardHours] = useState<number | null>(null);
+  const [soloDeepHours, setSoloDeepHours] = useState<number | null>(null);
+  const [soloStandardPrice, setSoloStandardPrice] = useState<number | null>(null);
+  const [soloDeepPrice, setSoloDeepPrice] = useState<number | null>(null);
 
   // Clutter level - key factor in estimation
   const [clutterLevel, setClutterLevel] = useState<'low' | 'medium' | 'high'>('low');
@@ -130,7 +134,7 @@ export default function MatrixPage() {
     }
 
     // Calculate standard clean hours using regression model
-    const standardHours = estimateCleaningTime(
+    const standardHoursEstimate = estimateCleaningTime(
       beds,
       baths,
       sqft,
@@ -141,7 +145,7 @@ export default function MatrixPage() {
     );
 
     // Calculate deep clean hours using regression model
-    const deepHours = estimateCleaningTime(
+    const deepHoursEstimate = estimateCleaningTime(
       beds,
       baths,
       sqft,
@@ -151,17 +155,36 @@ export default function MatrixPage() {
       clutterLevel
     );
 
-    const hourlyRate = 86; // This is the total service rate, not per cleaner
+    const hourlyRate = 90; // Team rate (2 cleaners)
+    const soloRate = 45;   // Single-cleaner rate
 
     // Model predicts actual clock hours (time on site with 2 cleaners)
     // No need to divide - the training data is already in clock hours
-    setStandardHours(standardHours);
-    setDeepCleanHours(deepHours);
+    setStandardHours(standardHoursEstimate);
+    setDeepCleanHours(deepHoursEstimate);
 
     // Price is based on clock hours × hourly rate
-    // If cleaners are there 2 hours at $86/hr = $172
-    setStandardCleanPrice(standardHours * hourlyRate);
-    setDeepCleanPrice(deepHours * hourlyRate);
+    // If cleaners are there 2 hours at $90/hr = $180
+    setStandardCleanPrice(standardHoursEstimate * hourlyRate);
+    setDeepCleanPrice(deepHoursEstimate * hourlyRate);
+
+    if (standardHoursEstimate < 3) {
+      const soloHours = standardHoursEstimate * 2;
+      setSoloStandardHours(soloHours);
+      setSoloStandardPrice(soloHours * soloRate);
+    } else {
+      setSoloStandardHours(null);
+      setSoloStandardPrice(null);
+    }
+
+    if (deepHoursEstimate < 3) {
+      const soloHours = deepHoursEstimate * 2;
+      setSoloDeepHours(soloHours);
+      setSoloDeepPrice(soloHours * soloRate);
+    } else {
+      setSoloDeepHours(null);
+      setSoloDeepPrice(null);
+    }
   };
 
   const reset = () => {
@@ -172,6 +195,10 @@ export default function MatrixPage() {
     setStandardCleanPrice(null);
     setStandardHours(null);
     setDeepCleanHours(null);
+    setSoloStandardHours(null);
+    setSoloDeepHours(null);
+    setSoloStandardPrice(null);
+    setSoloDeepPrice(null);
     setClutterLevel('low');
     setAddFridge(false);
     setAddOven(false);
@@ -293,7 +320,7 @@ export default function MatrixPage() {
 
           {deepCleanPrice !== null && standardCleanPrice !== null && (
             <div className="mt-8 space-y-4">
-              <div className="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-300 rounded-lg p-6">
+              <div className="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-300 rounded-lg p-6 space-y-3">
                 <h2 className="text-lg font-semibold text-gray-700 mb-2">
                   Deep Clean Price
                 </h2>
@@ -303,9 +330,20 @@ export default function MatrixPage() {
                 <p className="text-sm text-gray-600 mt-2">
                   Estimated time: {deepCleanHours?.toFixed(2)} hours
                 </p>
+                {soloDeepPrice !== null && soloDeepHours !== null && (
+                  <div className="mt-2 p-3 bg-white/70 border border-purple-200 rounded-lg">
+                    <p className="text-sm font-semibold text-purple-800">Solo Deep (1 cleaner)</p>
+                    <p className="text-xl font-bold text-purple-700">
+                      ${soloDeepPrice.toFixed(2)}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      Estimated time: {soloDeepHours.toFixed(2)} hours @ $45/hr
+                    </p>
+                  </div>
+                )}
               </div>
 
-              <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-300 rounded-lg p-6">
+              <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-300 rounded-lg p-6 space-y-3">
                 <h2 className="text-lg font-semibold text-gray-700 mb-2">
                   Standard Clean Price
                 </h2>
@@ -315,11 +353,22 @@ export default function MatrixPage() {
                 <p className="text-sm text-gray-600 mt-2">
                   Estimated time: {standardHours?.toFixed(2)} hours
                 </p>
+                {soloStandardPrice !== null && soloStandardHours !== null && (
+                  <div className="mt-2 p-3 bg-white/70 border border-blue-200 rounded-lg">
+                    <p className="text-sm font-semibold text-blue-800">Solo Standard (1 cleaner)</p>
+                    <p className="text-xl font-bold text-blue-700">
+                      ${soloStandardPrice.toFixed(2)}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      Estimated time: {soloStandardHours.toFixed(2)} hours @ $45/hr
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mt-4">
                 <p className="text-xs text-gray-600 text-center">
-                  $86/hour service rate (2 cleaners) | Times shown are clock hours (actual time on site) | Deep cleans include ceiling fans
+                  $90/hour service rate (2 cleaners) | Eligible solos shown when 2-person time &lt; 3 hrs (solo time &lt; 6 hrs) at $45/hour | Deep cleans include ceiling fans
                 </p>
               </div>
             </div>

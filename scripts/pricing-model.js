@@ -247,7 +247,7 @@ function rateCheckHours(q, rates) {
 function roundToNearest5(x) { return Math.round(x / 5) * 5; }
 function buildMatrix(model, data, opts) {
     const hourlyRate = opts?.hourlyRate ?? 80;
-    const minCharge = opts?.minCharge ?? 120;
+    const soloHourlyRate = opts?.soloHourlyRate ?? 45;
     const travelFee = opts?.travelFee ?? 0;
     const sqftStart = opts?.sqftStart ?? 800;
     const sqftEnd = opts?.sqftEnd ?? 5000;
@@ -272,7 +272,16 @@ function buildMatrix(model, data, opts) {
                                 const hoursPoint = Math.max(0.5, hours);
                                 // Calculate for 2 cleaners (divide by 2 for clock hours)
                                 const clockHours = hoursPoint / 2;
-                                const pricePoint = Math.max(minCharge, roundToNearest5(clockHours * hourlyRate)) + travelFee;
+                                const pricePoint = roundToNearest5(clockHours * hourlyRate) + travelFee;
+                                let soloLabel = "";
+                                let soloHours = null;
+                                let soloPrice = null;
+                                if (hoursPoint < 6) {
+                                    const soloClockHours = +((clockHours * 2).toFixed(2));
+                                    soloLabel = d === 1 ? 'SOLO DEEP' : 'SOLO STANDARD';
+                                    soloHours = soloClockHours;
+                                    soloPrice = roundToNearest5(soloClockHours * soloHourlyRate) + travelFee;
+                                }
                                 rows.push({
                                     sqft,
                                     bedrooms: br,
@@ -284,7 +293,10 @@ function buildMatrix(model, data, opts) {
                                     labor_hours: +hoursPoint.toFixed(2),
                                     clock_hours: +clockHours.toFixed(2),
                                     rate_check_hours: isNaN(rc) ? "" : +rc.toFixed(2),
-                                    price: +pricePoint.toFixed(2)
+                                    price: +pricePoint.toFixed(2),
+                                    solo_label: soloLabel,
+                                    solo_hours: soloHours === null ? "" : +soloHours.toFixed(2),
+                                    solo_price: soloPrice === null ? "" : +soloPrice.toFixed(2)
                                 });
                             }
     }
@@ -355,8 +367,8 @@ fs.writeFileSync("./scripts/ridge_model.json", JSON.stringify(modelExport, null,
 console.log("Model saved to ./scripts/ridge_model.json");
 // Build the full pricing matrix
 const n = buildMatrix(model, data, {
-    hourlyRate: 86,
-    minCharge: 120,
+    hourlyRate: 90,
+    soloHourlyRate: 45,
     travelFee: 0,
     sqftStart: 800,
     sqftEnd: 5000,
