@@ -22,6 +22,27 @@ export default function MatrixPage() {
   const [addFridge, setAddFridge] = useState(false);
   const [addOven, setAddOven] = useState(false);
 
+  // Sales call checklist (compact UI above the pricing matrix)
+  const checklistItems = [
+    'Understand what is wrong with the home, and how they want it to look.',
+    'Get the address and condition of the home details.',
+    "Figure out what they've tried to keep it cleaned (solo, spouse, other cleaners).",
+    'Communicate how their current approach was admirable, but missing a key that we have.',
+    'Quick pitch then reveal price.',
+    'Attempt to value stack our 3 bonuses.',
+    'Assumptive close by presenting dates that might work for them.',
+    'Objection handling.',
+    'Nudging questions into endzone.',
+    'Qualifying statements + onboarding questions.',
+  ];
+  const [checklistState, setChecklistState] = useState<boolean[]>(() =>
+    Array(checklistItems.length).fill(false)
+  );
+  const toggleChecklist = (index: number) => {
+    setChecklistState((prev) => prev.map((v, i) => (i === index ? !v : v)));
+  };
+  const resetChecklist = () => setChecklistState(Array(checklistItems.length).fill(false));
+
   // Ridge regression model (K-fold CV, trained on Ref1.csv)
   // Model: 5-fold CV R² = 0.8210, MAE = 0.499 hours, RMSE = 0.610 hours, Alpha = 0.25
   const ridgeModel = {
@@ -217,6 +238,31 @@ export default function MatrixPage() {
           <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
             Cleaning Pricing Matrix
           </h1>
+
+          <div className="mb-6 border border-gray-200 rounded-lg p-4 bg-gray-50 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-semibold text-gray-700">Sales Call Checklist</p>
+              <button
+                onClick={resetChecklist}
+                className="text-xs text-blue-600 hover:text-blue-700 font-semibold"
+              >
+                Reset
+              </button>
+            </div>
+            <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+              {checklistItems.map((item, idx) => (
+                <label key={idx} className="flex items-start gap-2 text-xs text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={checklistState[idx]}
+                    onChange={() => toggleChecklist(idx)}
+                    className="mt-0.5 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
+                  />
+                  <span className="leading-snug">{item}</span>
+                </label>
+              ))}
+            </div>
+          </div>
 
           <div className="space-y-4 mb-6">
             <div>
