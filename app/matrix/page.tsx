@@ -23,6 +23,35 @@ export default function MatrixPage() {
   const [addOven, setAddOven] = useState(false);
   const [showReference, setShowReference] = useState(false);
 
+  // Client statements + onboarding checklists
+  const statementItems = [
+    '$50 security deposit collected. Cancel 48+ hours for refund; inside 48 hours it goes to cleaners to cover lost payroll hours.',
+    'Arrival is a 60-minute window around start time; cleaners aim to be 15 minutes early but may arrive anytime in that window if a prior clean runs long.',
+    'No live roaches/ongoing bug problems on site. Confirm no live bugs will be encountered.',
+    'No surfaces with over 2 feet of mold. Confirm none present.',
+    'Please secure pets away from work areas so cleaners can work efficiently.',
+  ];
+  const onboardingItems = [
+    'Who will let the cleaners into the home?',
+    'Is there a gate code to enter the area?',
+    'Any restricted rooms or surfaces?',
+    'Is parking on the side of the road okay?',
+  ];
+  const [statementChecks, setStatementChecks] = useState<boolean[]>(() =>
+    Array(statementItems.length).fill(false)
+  );
+  const [onboardingChecks, setOnboardingChecks] = useState<boolean[]>(() =>
+    Array(onboardingItems.length).fill(false)
+  );
+  const toggleStatement = (idx: number) => {
+    setStatementChecks((prev) => prev.map((v, i) => (i === idx ? !v : v)));
+  };
+  const toggleOnboarding = (idx: number) => {
+    setOnboardingChecks((prev) => prev.map((v, i) => (i === idx ? !v : v)));
+  };
+  const resetStatements = () => setStatementChecks(Array(statementItems.length).fill(false));
+  const resetOnboarding = () => setOnboardingChecks(Array(onboardingItems.length).fill(false));
+
   // Sales call checklist (compact UI above the pricing matrix)
   const checklistItems = [
     'Understand what is wrong with the home, and how they want it to look.',
@@ -426,9 +455,60 @@ export default function MatrixPage() {
               </div>
             </div>
           )}
-      </div>
 
-        <div className="mt-6">
+          <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="border border-gray-200 rounded-lg bg-gray-50 p-3 shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-semibold text-gray-700">Client Statements</p>
+                <button
+                  onClick={resetStatements}
+                  className="text-xs text-blue-600 hover:text-blue-700 font-semibold"
+                >
+                  Reset
+                </button>
+              </div>
+              <div className="space-y-2 max-h-44 overflow-y-auto pr-1">
+                {statementItems.map((item, idx) => (
+                  <label key={idx} className="flex items-start gap-2 text-xs text-gray-700">
+                    <input
+                      type="checkbox"
+                      checked={statementChecks[idx]}
+                      onChange={() => toggleStatement(idx)}
+                      className="mt-0.5 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
+                    />
+                    <span className="leading-snug">{item}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="border border-gray-200 rounded-lg bg-gray-50 p-3 shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-semibold text-gray-700">Onboarding Questions</p>
+                <button
+                  onClick={resetOnboarding}
+                  className="text-xs text-blue-600 hover:text-blue-700 font-semibold"
+                >
+                  Reset
+                </button>
+              </div>
+              <div className="space-y-2 max-h-44 overflow-y-auto pr-1">
+                {onboardingItems.map((item, idx) => (
+                  <label key={idx} className="flex items-start gap-2 text-xs text-gray-700">
+                    <input
+                      type="checkbox"
+                      checked={onboardingChecks[idx]}
+                      onChange={() => toggleOnboarding(idx)}
+                      className="mt-0.5 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
+                    />
+                    <span className="leading-snug">{item}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6">
           <button
             onClick={() => setShowReference((prev) => !prev)}
             className="w-full bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 flex items-center justify-between"
@@ -461,5 +541,6 @@ export default function MatrixPage() {
         </div>
       </div>
     </div>
+  </div>
   );
 }
