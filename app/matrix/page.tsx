@@ -279,7 +279,7 @@ export default function MatrixPage() {
                 Reset
               </button>
             </div>
-            <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+            <div className="space-y-1.5">
               {checklistItems.map((item, idx) => (
                 <label key={idx} className="flex items-start gap-2 text-xs text-gray-700">
                   <input
@@ -467,7 +467,7 @@ export default function MatrixPage() {
                   Reset
                 </button>
               </div>
-              <div className="space-y-2 max-h-44 overflow-y-auto pr-1">
+              <div className="space-y-2">
                 {statementItems.map((item, idx) => (
                   <label key={idx} className="flex items-start gap-2 text-xs text-gray-700">
                     <input
@@ -492,7 +492,7 @@ export default function MatrixPage() {
                   Reset
                 </button>
               </div>
-              <div className="space-y-2 max-h-44 overflow-y-auto pr-1">
+              <div className="space-y-2">
                 {onboardingItems.map((item, idx) => (
                   <label key={idx} className="flex items-start gap-2 text-xs text-gray-700">
                     <input
