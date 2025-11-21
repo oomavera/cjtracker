@@ -1,12 +1,12 @@
 Name,Bedrooms,Bathrooms,Square feet,Type of clean,Fridge,Oven,Clutter Level,Hours
-Raj,4,3,"2,758",standard,no,no,Low,3
+Raj,4,3,"2,758",standard,no,no,High,3
 Patrick,3,2,"1,554",standard,no,no,Low,1.75
-Rida,6,5,"6,648",standard,no,no,Medium,4
-Rida,6,5,"6,648",Deep Clean,no,no,Medium,6.2
-Aj,2,2,"1,002",standard,no,no,Medium,2
+Rida,6,5,"6,648",standard,no,no,High,4
+Rida,6,5,"6,648",Deep Clean,no,no,High,6.2
+Aj,2,2,"1,002",standard,no,no,High,2
 Brianna,3,2,"1,167",Deep Clean,yes,yes,High,5
 Anthony,2,2,"1,188",standard,no,no,Low,2.3
-Trey,5,4,"4,214",standard,no,no,Low,3.5
+Trey,5,4,"4,214",standard,no,no,High,3.5
 Michael,4,3,2551,standard,no,no,Low,3
 Hany,4,2,"2,042",Deep Clean,yes,no,Low,4
 Leilani,3,2,"1,497",standard,no,no,Low,2
@@ -19,3 +19,9 @@ Kathy,3,3,"1,687",Deep Clean,no,no,Medium,4.1
 Mike,3,2,"1,875",Deep Clean,yes,no,Low,4.4
 Jack,4,2,"2,271",standard,no,no,Low,2.5
 Craig,4,2,"2,467",standard,no,no,Low,3.2
+Jonathan,4,3,"2,090",Deep Clean ,no,no,Low,5.17
+Alyssa,4,3,"2,023",standard,no,no,Medium,3.5
+Debbie,4,2,"1,428",Deep Clean,no,yes,High,7
+Joanne,4,4,3859,Deep Clean,no,yes,Low,5.5
+Andrea,3,2.5,"1,700",Standard Clean,no,no,Medium,2
+Jonathan,4,3,"2,090",Standard Clean,no,no,Medium,2.6

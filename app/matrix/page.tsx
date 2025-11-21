@@ -23,30 +23,30 @@ export default function MatrixPage() {
   const [addOven, setAddOven] = useState(false);
 
   // Ridge regression model (K-fold CV, trained on Ref1.csv)
-  // Model: R² = 0.9233, MAE = 0.312 hours, RMSE = 0.504 hours, Alpha = 1.151
+  // Model: 5-fold CV R² = 0.8210, MAE = 0.499 hours, RMSE = 0.610 hours, Alpha = 0.25
   const ridgeModel = {
     coefficients: {
-      intercept: 3.052929,
-      sqft: 0.155445,
-      bedrooms: 0.335428,
-      bathrooms: 0.160120,
-      deep_clean: 1.105194,
-      fridge: 0.535092,
-      oven: 0.439813,
-      clutter_high: 0.372249,
-      clutter_low: -0.371822,
-      clutter_medium: -0.000428
+      intercept: 2.791896,
+      sqft: -0.080504,
+      bedrooms: 0.594798,
+      bathrooms: -0.099479,
+      deep_clean: 2.117875,
+      fridge: -0.558166,
+      oven: 0.8788,
+      clutter_high: 0.290614,
+      clutter_low: -0.245159,
+      clutter_medium: -0.045455
     },
     standardization: {
       means: {
-        sqft: 2395.3,
-        bedrooms: 3.65,
-        bathrooms: 2.55
+        sqft: 2349.8462,
+        bedrooms: 3.6923,
+        bathrooms: 2.6346
       },
       stds: {
-        sqft: 1621.346,
-        bedrooms: 1.089,
-        bathrooms: 0.999
+        sqft: 1438.2056,
+        bedrooms: 0.9515,
+        bathrooms: 0.9152
       }
     },
     categories: {
@@ -56,14 +56,14 @@ export default function MatrixPage() {
 
   // Reference data from Ref1.csv - for display purposes
   const referenceData = [
-    { name: 'Raj', beds: 4, baths: 3, sqft: 2758, type: 'standard', fridge: false, oven: false, clutter: 'low', hours: 3 },
+    { name: 'Raj', beds: 4, baths: 3, sqft: 2758, type: 'standard', fridge: false, oven: false, clutter: 'high', hours: 3 },
     { name: 'Patrick', beds: 3, baths: 2, sqft: 1554, type: 'standard', fridge: false, oven: false, clutter: 'low', hours: 1.75 },
-    { name: 'Rida', beds: 6, baths: 5, sqft: 6648, type: 'standard', fridge: false, oven: false, clutter: 'medium', hours: 4 },
-    { name: 'Rida', beds: 6, baths: 5, sqft: 6648, type: 'deep', fridge: false, oven: false, clutter: 'medium', hours: 6.2 },
-    { name: 'Aj', beds: 2, baths: 2, sqft: 1002, type: 'standard', fridge: false, oven: false, clutter: 'medium', hours: 2 },
+    { name: 'Rida', beds: 6, baths: 5, sqft: 6648, type: 'standard', fridge: false, oven: false, clutter: 'high', hours: 4 },
+    { name: 'Rida', beds: 6, baths: 5, sqft: 6648, type: 'deep', fridge: false, oven: false, clutter: 'high', hours: 6.2 },
+    { name: 'Aj', beds: 2, baths: 2, sqft: 1002, type: 'standard', fridge: false, oven: false, clutter: 'high', hours: 2 },
     { name: 'Brianna', beds: 3, baths: 2, sqft: 1167, type: 'deep', fridge: true, oven: true, clutter: 'high', hours: 5 },
     { name: 'Anthony', beds: 2, baths: 2, sqft: 1188, type: 'standard', fridge: false, oven: false, clutter: 'low', hours: 2.3 },
-    { name: 'Trey', beds: 5, baths: 4, sqft: 4214, type: 'standard', fridge: false, oven: false, clutter: 'low', hours: 3.5 },
+    { name: 'Trey', beds: 5, baths: 4, sqft: 4214, type: 'standard', fridge: false, oven: false, clutter: 'high', hours: 3.5 },
     { name: 'Michael', beds: 4, baths: 3, sqft: 2551, type: 'standard', fridge: false, oven: false, clutter: 'low', hours: 3 },
     { name: 'Hany', beds: 4, baths: 2, sqft: 2042, type: 'deep', fridge: true, oven: false, clutter: 'low', hours: 4 },
     { name: 'Leilani', beds: 3, baths: 2, sqft: 1497, type: 'standard', fridge: false, oven: false, clutter: 'low', hours: 2 },
@@ -76,6 +76,12 @@ export default function MatrixPage() {
     { name: 'Mike', beds: 3, baths: 2, sqft: 1875, type: 'deep', fridge: true, oven: false, clutter: 'low', hours: 4.4 },
     { name: 'Jack', beds: 4, baths: 2, sqft: 2271, type: 'standard', fridge: false, oven: false, clutter: 'low', hours: 2.5 },
     { name: 'Craig', beds: 4, baths: 2, sqft: 2467, type: 'standard', fridge: false, oven: false, clutter: 'low', hours: 3.2 },
+    { name: 'Jonathan', beds: 4, baths: 3, sqft: 2090, type: 'deep', fridge: false, oven: false, clutter: 'low', hours: 5.17 },
+    { name: 'Alyssa', beds: 4, baths: 3, sqft: 2023, type: 'standard', fridge: false, oven: false, clutter: 'medium', hours: 3.5 },
+    { name: 'Debbie', beds: 4, baths: 2, sqft: 1428, type: 'deep', fridge: false, oven: true, clutter: 'high', hours: 7 },
+    { name: 'Joanne', beds: 4, baths: 4, sqft: 3859, type: 'deep', fridge: false, oven: true, clutter: 'low', hours: 5.5 },
+    { name: 'Andrea', beds: 3, baths: 2.5, sqft: 1700, type: 'standard', fridge: false, oven: false, clutter: 'medium', hours: 2 },
+    { name: 'Jonathan', beds: 4, baths: 3, sqft: 2090, type: 'standard', fridge: false, oven: false, clutter: 'medium', hours: 2.6 },
   ];
 
   // Ridge regression model: Predicts labor hours from property attributes
@@ -373,11 +379,11 @@ export default function MatrixPage() {
               </div>
             </div>
           )}
-        </div>
+      </div>
 
         <div className="mt-6 bg-white rounded-lg shadow-md p-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-3">
-            Reference Data from Ref1.csv (20 properties)
+            Reference Data from Ref1.csv (26 properties)
           </h3>
           <div className="text-xs text-gray-600 space-y-1 max-h-64 overflow-y-auto">
             {referenceData.map((data, idx) => (
@@ -393,7 +399,7 @@ export default function MatrixPage() {
           </div>
           <div className="mt-4 pt-4 border-t border-gray-200">
             <p className="text-xs text-gray-500">
-              <strong>Algorithm:</strong> Ridge regression (L2-regularized) with K-fold cross-validation for optimal regularization strength (α = 1.151). Trained on 20 actual cleaning jobs with proper feature standardization. Predicts labor-hours from square footage, bedrooms, bathrooms, deep-clean flag, clutter level, and fridge/oven tasks. Model performance: R² = 0.9233 (92% variance explained), MAE = 0.312 hours, RMSE = 0.504 hours. This approach uses production-rate thinking aligned with custodial workloading frameworks and industry time-study methods.
+              <strong>Algorithm:</strong> Ridge regression (L2-regularized) with 5-fold cross-validation for α tuning (best α = 0.25). Trained on 26 actual cleaning jobs with standardized square footage, bedrooms, and bathrooms. Predicts labor-hours from property size, bed/baths, deep-clean flag, clutter level, and fridge/oven tasks. CV performance: R² = 0.821 (82% variance explained), MAE = 0.499 hours, RMSE = 0.610 hours. This approach uses production-rate thinking aligned with custodial workloading frameworks and industry time-study methods.
             </p>
           </div>
         </div>
