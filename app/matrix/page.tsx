@@ -233,14 +233,14 @@ export default function MatrixPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 sm:p-6">
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-lg shadow-xl p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+        <div className="bg-white rounded-lg shadow-xl p-5 sm:p-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 text-center">
             Cleaning Pricing Matrix
           </h1>
 
-          <div className="mb-6 border border-gray-200 rounded-lg p-4 bg-gray-50 shadow-sm">
+          <div className="mb-5 border border-gray-200 rounded-lg p-3 bg-gray-50 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm font-semibold text-gray-700">Sales Call Checklist</p>
               <button
@@ -250,7 +250,7 @@ export default function MatrixPage() {
                 Reset
               </button>
             </div>
-            <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+            <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
               {checklistItems.map((item, idx) => (
                 <label key={idx} className="flex items-start gap-2 text-xs text-gray-700">
                   <input
@@ -265,61 +265,61 @@ export default function MatrixPage() {
             </div>
           </div>
 
-          <div className="space-y-4 mb-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+            <div className="space-y-1">
+              <label className="block text-xs font-medium text-gray-700">
                 Bedrooms
               </label>
               <input
                 type="number"
                 value={bedrooms}
                 onChange={(e) => setBedrooms(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter number of bedrooms"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                placeholder="Bedrooms"
                 min="0"
                 step="1"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="space-y-1">
+              <label className="block text-xs font-medium text-gray-700">
                 Bathrooms
               </label>
               <input
                 type="number"
                 value={bathrooms}
                 onChange={(e) => setBathrooms(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter number of bathrooms"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                placeholder="Bathrooms"
                 min="0"
                 step="0.5"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="space-y-1">
+              <label className="block text-xs font-medium text-gray-700">
                 Square Feet
               </label>
               <input
                 type="number"
                 value={sqFeet}
                 onChange={(e) => setSqFeet(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter total square footage"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                placeholder="Square feet"
                 min="0"
                 step="1"
               />
             </div>
           </div>
 
-          <div className="border-t border-gray-200 pt-4 mt-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">Clutter Level</h3>
-            <div className="space-y-3">
+          <div className="border-t border-gray-200 pt-3 mt-3">
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">Clutter Level</h3>
+            <div className="space-y-2">
               <div>
                 <select
                   value={clutterLevel}
                   onChange={(e) => setClutterLevel(e.target.value as 'low' | 'medium' | 'high')}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                 >
                   <option value="low">Low - Minimal items out, well maintained</option>
                   <option value="medium">Medium - Moderate items, typical lived-in home</option>
@@ -329,9 +329,9 @@ export default function MatrixPage() {
             </div>
           </div>
 
-          <div className="border-t border-gray-200 pt-4 mt-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">Add-Ons</h3>
-            <div className="space-y-3">
+          <div className="border-t border-gray-200 pt-3 mt-3">
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">Add-Ons</h3>
+            <div className="space-y-2">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -356,16 +356,16 @@ export default function MatrixPage() {
             </div>
           </div>
 
-          <div className="flex gap-4 mb-6">
+          <div className="flex gap-3 mb-5">
             <button
               onClick={calculatePricing}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm"
             >
               Calculate Pricing
             </button>
             <button
               onClick={reset}
-              className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+              className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm"
             >
               Reset
             </button>
@@ -373,20 +373,20 @@ export default function MatrixPage() {
 
           {deepCleanPrice !== null && standardCleanPrice !== null && (
             <div className="mt-8 space-y-4">
-              <div className="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-300 rounded-lg p-6 space-y-3">
+              <div className="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-300 rounded-lg p-4 space-y-2.5">
                 <h2 className="text-lg font-semibold text-gray-700 mb-2">
                   Deep Clean Price
                 </h2>
-                <p className="text-4xl font-bold text-purple-700">
+                <p className="text-3xl font-bold text-purple-700">
                   ${deepCleanPrice.toFixed(2)}
                 </p>
-                <p className="text-sm text-gray-600 mt-2">
+                <p className="text-sm text-gray-600 mt-1.5">
                   Estimated time: {deepCleanHours?.toFixed(2)} hours
                 </p>
                 {soloDeepPrice !== null && soloDeepHours !== null && (
-                  <div className="mt-2 p-3 bg-white/70 border border-purple-200 rounded-lg">
+                  <div className="mt-2 p-2.5 bg-white/70 border border-purple-200 rounded-lg">
                     <p className="text-sm font-semibold text-purple-800">Solo Deep (1 cleaner)</p>
-                    <p className="text-xl font-bold text-purple-700">
+                    <p className="text-lg font-bold text-purple-700">
                       ${soloDeepPrice.toFixed(2)}
                     </p>
                     <p className="text-xs text-gray-600">
@@ -396,20 +396,20 @@ export default function MatrixPage() {
                 )}
               </div>
 
-              <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-300 rounded-lg p-6 space-y-3">
+              <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-300 rounded-lg p-4 space-y-2.5">
                 <h2 className="text-lg font-semibold text-gray-700 mb-2">
                   Standard Clean Price
                 </h2>
-                <p className="text-4xl font-bold text-blue-700">
+                <p className="text-3xl font-bold text-blue-700">
                   ${standardCleanPrice.toFixed(2)}
                 </p>
-                <p className="text-sm text-gray-600 mt-2">
+                <p className="text-sm text-gray-600 mt-1.5">
                   Estimated time: {standardHours?.toFixed(2)} hours
                 </p>
                 {soloStandardPrice !== null && soloStandardHours !== null && (
-                  <div className="mt-2 p-3 bg-white/70 border border-blue-200 rounded-lg">
+                  <div className="mt-2 p-2.5 bg-white/70 border border-blue-200 rounded-lg">
                     <p className="text-sm font-semibold text-blue-800">Solo Standard (1 cleaner)</p>
-                    <p className="text-xl font-bold text-blue-700">
+                    <p className="text-lg font-bold text-blue-700">
                       ${soloStandardPrice.toFixed(2)}
                     </p>
                     <p className="text-xs text-gray-600">
@@ -419,7 +419,7 @@ export default function MatrixPage() {
                 )}
               </div>
 
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mt-4">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mt-3">
                 <p className="text-xs text-gray-600 text-center">
                   $90/hour service rate (2 cleaners) | Eligible solos shown when 2-person time &lt; 3 hrs (solo time &lt; 6 hrs) at $45/hour | Deep cleans include ceiling fans
                 </p>
