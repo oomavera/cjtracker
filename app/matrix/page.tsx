@@ -21,6 +21,7 @@ export default function MatrixPage() {
   // Add-ons
   const [addFridge, setAddFridge] = useState(false);
   const [addOven, setAddOven] = useState(false);
+  const [showReference, setShowReference] = useState(false);
 
   // Sales call checklist (compact UI above the pricing matrix)
   const checklistItems = [
@@ -427,27 +428,36 @@ export default function MatrixPage() {
           )}
       </div>
 
-        <div className="mt-6 bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-3">
-            Reference Data from Ref1.csv (26 properties)
-          </h3>
-          <div className="text-xs text-gray-600 space-y-1 max-h-64 overflow-y-auto">
-            {referenceData.map((data, idx) => (
-              <p key={idx}>
-                • {data.name}: {data.beds} bed, {data.baths} bath, {data.sqft.toLocaleString()} sqft
-                {data.type === 'standard' ? ' (Standard)' : ' (Deep)'}
-                {data.fridge ? ' +Fridge' : ''}
-                {data.oven ? ' +Oven' : ''}
-                {' - '}{data.clutter.charAt(0).toUpperCase() + data.clutter.slice(1)} clutter
-                {' = '}{data.hours}hrs
-              </p>
-            ))}
-          </div>
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <p className="text-xs text-gray-500">
-              <strong>Algorithm:</strong> Ridge regression (L2-regularized) with 5-fold cross-validation for α tuning (best α = 0.25). Trained on 26 actual cleaning jobs with standardized square footage, bedrooms, and bathrooms. Predicts labor-hours from property size, bed/baths, deep-clean flag, clutter level, and fridge/oven tasks. CV performance: R² = 0.821 (82% variance explained), MAE = 0.499 hours, RMSE = 0.610 hours. This approach uses production-rate thinking aligned with custodial workloading frameworks and industry time-study methods.
-            </p>
-          </div>
+        <div className="mt-6">
+          <button
+            onClick={() => setShowReference((prev) => !prev)}
+            className="w-full bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 flex items-center justify-between"
+          >
+            <span>Reference Data from Ref1.csv (26 properties)</span>
+            <span className="text-xs text-gray-500">{showReference ? 'Hide' : 'Show'}</span>
+          </button>
+
+          {showReference && (
+            <div className="mt-3 bg-white rounded-lg shadow-md p-6">
+              <div className="text-xs text-gray-600 space-y-1 max-h-64 overflow-y-auto">
+                {referenceData.map((data, idx) => (
+                  <p key={idx}>
+                    • {data.name}: {data.beds} bed, {data.baths} bath, {data.sqft.toLocaleString()} sqft
+                    {data.type === 'standard' ? ' (Standard)' : ' (Deep)'}
+                    {data.fridge ? ' +Fridge' : ''}
+                    {data.oven ? ' +Oven' : ''}
+                    {' - '}{data.clutter.charAt(0).toUpperCase() + data.clutter.slice(1)} clutter
+                    {' = '}{data.hours}hrs
+                  </p>
+                ))}
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <p className="text-xs text-gray-500">
+                  <strong>Algorithm:</strong> Ridge regression (L2-regularized) with 5-fold cross-validation for α tuning (best α = 0.25). Trained on 26 actual cleaning jobs with standardized square footage, bedrooms, and bathrooms. Predicts labor-hours from property size, bed/baths, deep-clean flag, clutter level, and fridge/oven tasks. CV performance: R² = 0.821 (82% variance explained), MAE = 0.499 hours, RMSE = 0.610 hours. This approach uses production-rate thinking aligned with custodial workloading frameworks and industry time-study methods.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
